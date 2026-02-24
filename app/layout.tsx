@@ -2,6 +2,8 @@ import type React from "react"
 import type { Metadata } from "next"
 import { Cormorant_Garamond, Inter } from "next/font/google"
 import { Analytics } from "@vercel/analytics/next"
+import { cookies } from "next/headers"
+import { PasswordGate } from "@/components/password-gate"
 import "./globals.css"
 
 const _cormorant = Cormorant_Garamond({
@@ -17,15 +19,20 @@ export const metadata: Metadata = {
     generator: 'v0.app'
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode
 }>) {
+  const cookieStore = await cookies()
+  const isUnlocked = cookieStore.get("site-unlocked")?.value === "true"
+
   return (
     <html lang="en">
       <body className="font-sans antialiased">
-        {children}
+        <PasswordGate isUnlocked={isUnlocked}>
+          {children}
+        </PasswordGate>
         <Analytics />
       </body>
     </html>
